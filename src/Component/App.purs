@@ -72,21 +72,22 @@ initialState =
 
 renderRepo :: Repo -> JSX
 renderRepo repo =
-  H.div_
-  [ H.a
-    { href: "https://github.com/" <> repo.full_name <> "/"
-    , children:
-      [ H.span_
+  H.div
+  { className: "repo"
+  , children:
+    [ H.a
+      { href: "https://github.com/" <> repo.full_name <> "/"
+      , children:
         [ H.text repo.full_name ]
-      , H.span_
-        [ H.text (fromMaybe "" (toMaybe repo.language)) ]
-      , H.span_
-        [ H.text (show repo.stargazers_count) ]
-      , H.span_
-        [ H.text repo.updated_at ]
-      ]
-    }
-  ]
+      }
+    , H.span_
+      [ H.text (fromMaybe "" (toMaybe repo.language)) ]
+    , H.span_
+      [ H.text (show repo.stargazers_count) ]
+    , H.span_
+      [ H.text repo.updated_at ]
+    ]
+  }
 
 render :: Self Props State Action -> JSX
 render self =
@@ -103,7 +104,8 @@ render self =
     , H.div
       { className: "body"
       , children:
-        [ H.div { children: [ H.text "<" ], onClick: capture_ self PrevPage }
+        [ H.style_ [ H.text ".repo > * { padding: 8px; }" ]
+        , H.div { children: [ H.text "<" ], onClick: capture_ self PrevPage }
         , H.div_ [ H.text (show self.state.page) ]
         , H.div { children: [ H.text ">" ], onClick: capture_ self NextPage }
         , H.ul_ (self.state.repos <#> (\repo -> H.li_ [ renderRepo repo ]))
