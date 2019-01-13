@@ -12,7 +12,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, Error, error, throwError)
 import Effect.Aff as Aff
 import Prelude (Unit, bind, map, max, pure, show, (+), (-), (<#>), (<<<), (<>))
-import React.Basic (Component, JSX, Self, StateUpdate(..), capture_, createComponent, make, sendAsync)
+import React.Basic (Component, JSX, Self, StateUpdate(..), capture_, createComponent, make, send, sendAsync)
 import React.Basic.DOM as H
 import Simple.JSON (E)
 import Simple.JSON as SimpleJSON
@@ -27,6 +27,7 @@ type State =
 
 data Action
   = FetchFailure Error
+  | FetchRepos
   | NextPage
   | PrevPage
   | UpdateRepos (Array Repo)
@@ -61,7 +62,7 @@ app :: JSX
 app = make component { didMount, initialState, render, update } {}
 
 didMount :: Self Props State Action -> Effect Unit
-didMount self = sendAsync self (fetchRepos' self.state.page)
+didMount self = send self FetchRepos
 
 initialState :: State
 initialState =
@@ -116,9 +117,17 @@ render self =
 update :: Self Props State Action -> Action -> StateUpdate Props State Action
 update self (FetchFailure _) =
   Update self.state { repos = [] }
+update self FetchRepos =
+  UpdateAndSideEffects
+    (self.state { repos = [] })
+    (\self' -> sendAsync self' (fetchRepos' self'.state.page))
 update self NextPage =
-  Update self.state { page = self.state.page + 1 }
+  UpdateAndSideEffects
+    (self.state { page = self.state.page + 1 })
+    (\self' -> send self' FetchRepos)
 update self PrevPage =
-  Update self.state { page = max 1 (self.state.page - 1) }
+  UpdateAndSideEffects
+    (self.state { page = max 1 (self.state.page - 1) })
+    (\self' -> send self' FetchRepos)
 update self (UpdateRepos repos) =
   Update self.state { repos = repos }
