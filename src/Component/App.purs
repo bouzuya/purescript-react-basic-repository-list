@@ -2,6 +2,8 @@ module Component.App
   ( app
   ) where
 
+import Prelude
+
 import React.Basic (Component, JSX, Self, StateUpdate(..), createComponent, make)
 import React.Basic.DOM as H
 
@@ -9,10 +11,18 @@ type Props =
   {}
 
 type State =
-  {}
+  { repos :: Array Repo
+  }
 
 data Action
   = Noop
+
+type Repo =
+  { full_name :: String
+  , language :: String
+  , stargazers_count :: Int
+  , updated_at :: String
+  }
 
 component :: Component Props
 component = createComponent "App"
@@ -22,7 +32,37 @@ app = make component { initialState, render, update } {}
 
 initialState :: State
 initialState =
-  {}
+  { repos:
+    [ { full_name: "bouzuya/blog.bouzuya.net"
+      , language: "TypeScript"
+      , stargazers_count: 6
+      , updated_at: "2019-01-12T14:19:54Z"
+      }
+    , { full_name: "bouzuya/blog.bouzuya.net"
+      , language: "TypeScript"
+      , stargazers_count: 6
+      , updated_at: "2019-01-12T14:19:54Z"
+      }
+    ]
+  }
+
+renderRepo :: Repo -> JSX
+renderRepo repo =
+  H.div_
+  [ H.a
+    { href: "https://github.com/" <> repo.full_name <> "/"
+    , children:
+      [ H.span_
+        [ H.text repo.full_name ]
+      , H.span_
+        [ H.text repo.language ]
+      , H.span_
+        [ H.text (show repo.stargazers_count) ]
+      , H.span_
+        [ H.text repo.updated_at ]
+      ]
+    }
+  ]
 
 render :: Self Props State Action -> JSX
 render self =
@@ -37,7 +77,13 @@ render self =
         ]
       }
     , H.div
-      { className: "body" }
+      { className: "body"
+      , children:
+        [ H.div_ [ H.text "<" ]
+        , H.div_ [ H.text ">" ]
+        , H.ul_ (self.state.repos <#> (\repo -> H.li_ [ renderRepo repo ]))
+        ]
+      }
     , H.div
       { className: "footer" }
     ]
