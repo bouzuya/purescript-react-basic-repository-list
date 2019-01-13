@@ -4,18 +4,21 @@ module Component.App
 
 import Prelude
 
-import React.Basic (Component, JSX, Self, StateUpdate(..), createComponent, make)
+import React.Basic (Component, JSX, Self, StateUpdate(..), capture_, createComponent, make)
 import React.Basic.DOM as H
 
 type Props =
   {}
 
 type State =
-  { repos :: Array Repo
+  { page :: Int
+  , repos :: Array Repo
   }
 
 data Action
-  = Noop
+  = NextPage
+  | PrevPage
+  | UpdateRepos (Array Repo)
 
 type Repo =
   { full_name :: String
@@ -32,7 +35,8 @@ app = make component { initialState, render, update } {}
 
 initialState :: State
 initialState =
-  { repos:
+  { page: 1
+  , repos:
     [ { full_name: "bouzuya/blog.bouzuya.net"
       , language: "TypeScript"
       , stargazers_count: 6
@@ -79,8 +83,9 @@ render self =
     , H.div
       { className: "body"
       , children:
-        [ H.div_ [ H.text "<" ]
-        , H.div_ [ H.text ">" ]
+        [ H.div { children: [ H.text "<" ], onClick: capture_ self PrevPage }
+        , H.div_ [ H.text (show self.state.page) ]
+        , H.div { children: [ H.text ">" ], onClick: capture_ self NextPage }
         , H.ul_ (self.state.repos <#> (\repo -> H.li_ [ renderRepo repo ]))
         ]
       }
@@ -90,4 +95,9 @@ render self =
   }
 
 update :: Self Props State Action -> Action -> StateUpdate Props State Action
-update self Noop = NoUpdate
+update self NextPage =
+  Update self.state { page = self.state.page + 1 }
+update self PrevPage =
+  Update self.state { page = max 1 (self.state.page - 1) }
+update self (UpdateRepos repos) =
+  Update self.state { repos = repos }
