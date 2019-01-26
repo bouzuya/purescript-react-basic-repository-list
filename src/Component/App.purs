@@ -70,21 +70,23 @@ initialState =
   , repos: []
   }
 
-renderRepo :: Repo -> JSX
-renderRepo repo =
-  H.div
+renderRepoRow :: Repo -> JSX
+renderRepoRow repo =
+  H.tr
   { className: "repo"
   , children:
-    [ H.a
-      { href: "https://github.com/" <> repo.full_name <> "/"
-      , children:
-        [ H.text repo.full_name ]
-      }
-    , H.span_
+    [ H.td_
+      [ H.a
+        { href: "https://github.com/" <> repo.full_name <> "/"
+        , children:
+          [ H.text repo.full_name ]
+        }
+      ]
+    , H.td_
       [ H.text (fromMaybe "" (toMaybe repo.language)) ]
-    , H.span_
+    , H.td_
       [ H.text (show repo.stargazers_count) ]
-    , H.span_
+    , H.td_
       [ H.text repo.updated_at ]
     ]
   }
@@ -108,7 +110,7 @@ render self =
         , H.div { children: [ H.text "<" ], onClick: capture_ self PrevPage }
         , H.div_ [ H.text (show self.state.page) ]
         , H.div { children: [ H.text ">" ], onClick: capture_ self NextPage }
-        , H.ul_ (self.state.repos <#> (\repo -> H.li_ [ renderRepo repo ]))
+        , H.table_ (self.state.repos <#> (\repo -> renderRepoRow repo))
         ]
       }
     , H.div
