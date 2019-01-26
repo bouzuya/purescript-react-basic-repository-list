@@ -6,6 +6,8 @@ const saveStyleModule = ({ srcDir, moduleNameSuffix }) => {
     const cssDir = path.dirname(cssFileName);
     const cssName = path.basename(cssFileName, '.css');
     const baseModuleNames = path.relative(srcDir, cssDir).split(path.sep);
+    if (baseModuleNames.length > 0 && baseModuleNames[0] === '..')
+      return;
     const moduleName = cssName + moduleNameSuffix;
     const pursFilePath = path.resolve(cssDir, moduleName + '.purs');
     const entries = Object

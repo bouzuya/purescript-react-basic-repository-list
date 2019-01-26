@@ -1,11 +1,12 @@
+/*.tgz
 /.cache/
 /.env*
 /.psc*
 /.spago/
-/*.tgz
 /bundle.js
 /dist/
 /generated-docs/
+/index.css
 /node_modules/
 /output/
 /src/**/*Style.purs

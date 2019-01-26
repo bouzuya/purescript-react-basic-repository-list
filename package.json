@@ -15,6 +15,7 @@
     "react-dom": "^16.7.0"
   },
   "devDependencies": {
+    "chokidar-cli": "^1.2.1",
     "npm-run-all": "^4.1.5",
     "parcel-bundler": "^1.11.0",
     "postcss-cli": "^6.1.1",
@@ -31,7 +32,11 @@
     "type": "git"
   },
   "scripts": {
-    "build": "spago build",
+    "build": "npm-run-all -s 'build:style' 'build:purs'",
+    "build:purs": "spago build",
+    "build:style": "npm-run-all -s 'build:style:build' 'build:style:bundle'",
+    "build:style:build": "postcss src/**/*.css --base src --dir dist/style",
+    "build:style:bundle": "cat dist/style/**/*.css > index.css",
     "bundle": "npm-run-all -s 'bundle:purs' 'bundle:parcel'",
     "bundle:parcel": "parcel build ./index.html",
     "bundle:purs": "purs bundle 'output/**/*.js' --main Main --module Main --output bundle.js",
@@ -39,7 +44,11 @@
     "install:purs": "spago install",
     "prepare": "npm-run-all -s 'install:purs' build",
     "purs": "purs",
-    "serve": "parcel ./index.html",
+    "serve": "npm-run-all -p 'serve:*'",
+    "serve:parcel": "parcel ./index.html",
+    "serve:style": "npm-run-all -p 'serve:style:*'",
+    "serve:style:build": "npm run 'build:style:build' -- --watch",
+    "serve:style:bundle": "chokidar 'dist/style/**/*.css' --command 'npm run build:style:bundle' --silent",
     "spago": "spago",
     "start": "node --eval \"require('./output/Main').main();\"",
     "test": "node --eval \"require('./output/Test.Main').main();\""
