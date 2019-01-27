@@ -35,7 +35,7 @@
     "build": "npm-run-all -s 'build:style' 'build:purs'",
     "build:purs": "spago build",
     "build:style": "npm-run-all -s 'build:style:build' 'build:style:bundle'",
-    "build:style:build": "postcss src/**/*.css --base src --dir dist/style",
+    "build:style:build": "postcss src/**/*.css --config scripts --base src --dir dist/style",
     "build:style:bundle": "cat dist/style/**/*.css > index.css",
     "bundle": "npm-run-all -s 'bundle:purs' 'bundle:parcel'",
     "bundle:parcel": "parcel build ./index.html",
