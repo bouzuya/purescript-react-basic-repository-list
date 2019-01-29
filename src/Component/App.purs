@@ -5,6 +5,7 @@ module Component.App
 import Bouzuya.HTTP.Client as HttpClient
 import Bouzuya.HTTP.Method as Method
 import Component.AppStyle as Style
+import Data.Array as Array
 import Data.Either (either)
 import Data.Maybe (fromMaybe, maybe)
 import Data.Nullable (Nullable, toMaybe)
@@ -133,6 +134,7 @@ render self =
       { className: "body"
       , children:
         [ renderPager self
+        , H.div_ [ H.text ((show (Array.length self.state.repos)) <> " repoitories") ]
         , renderTable self
         ]
       }
