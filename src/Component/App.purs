@@ -134,7 +134,12 @@ render self =
       { className: "body"
       , children:
         [ renderPager self
-        , H.div_ [ H.text ((show (Array.length self.state.repos)) <> " repoitories") ]
+        , H.div
+          { className: Style.counter
+          , children:
+            [ H.text ((show (Array.length self.state.repos)) <> " repoitories")
+            ]
+          }
         , renderTable self
         ]
       }
