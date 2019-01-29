@@ -86,8 +86,18 @@
 
 .table {
   border-collapse: collapse;
+  width: 100%;
 }
 
 .th {
   border-bottom: 1px solid #000000;
+}
+
+.order {
+  display: block;
+  font-size: 24px;
+  height: 48px;
+  margin: 0 auto;
+  text-align: center;
+  width: 320px;
 }

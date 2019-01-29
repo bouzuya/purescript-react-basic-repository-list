@@ -165,7 +165,8 @@ renderLoading self =
 renderOrder :: Self Props State Action -> JSX
 renderOrder self =
   H.select
-  { onChange:
+  { className: Style.order
+  , onChange:
       capture
         self
         targetValue
@@ -199,8 +200,8 @@ render self =
       { className: "body"
       , children:
         (
-          [ renderPager self
-          , renderOrder self
+          [ renderOrder self
+          , renderPager self
           ] <> (
           if self.state.loading
           then []
