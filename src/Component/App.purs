@@ -71,27 +71,6 @@ initialState =
   , repos: []
   }
 
-renderRepoRow :: Repo -> JSX
-renderRepoRow repo =
-  H.tr
-  { className: "repo"
-  , children:
-    [ H.td_
-      [ H.a
-        { href: "https://github.com/" <> repo.full_name <> "/"
-        , children:
-          [ H.text repo.full_name ]
-        }
-      ]
-    , H.td_
-      [ H.text (fromMaybe "" (toMaybe repo.language)) ]
-    , H.td_
-      [ H.text (show repo.stargazers_count) ]
-    , H.td_
-      [ H.text repo.updated_at ]
-    ]
-  }
-
 renderPager :: Self Props State Action -> JSX
 renderPager self =
   H.div
@@ -114,6 +93,30 @@ renderPager self =
     ]
   }
 
+renderTable :: Self Props State Action -> JSX
+renderTable self =
+  H.table_
+    (self.state.repos <#> (\repo ->
+      H.tr
+      { className: "repo"
+      , children:
+        [ H.td_
+          [ H.a
+            { href: "https://github.com/" <> repo.full_name <> "/"
+            , children:
+              [ H.text repo.full_name ]
+            }
+          ]
+        , H.td_
+          [ H.text (fromMaybe "" (toMaybe repo.language)) ]
+        , H.td_
+          [ H.text (show repo.stargazers_count) ]
+        , H.td_
+          [ H.text repo.updated_at ]
+        ]
+      }
+    ))
+
 render :: Self Props State Action -> JSX
 render self =
   H.div
@@ -130,7 +133,7 @@ render self =
       { className: "body"
       , children:
         [ renderPager self
-        , H.table_ (self.state.repos <#> (\repo -> renderRepoRow repo))
+        , renderTable self
         ]
       }
     , H.div
