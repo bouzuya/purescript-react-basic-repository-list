@@ -13,7 +13,13 @@ const saveStyleModule = ({ srcDir, moduleNameSuffix }) => {
     const entries = Object
       .keys(json)
       .sort()
-      .map((key) => ({ key, value: json[key] }));
+      .map((key) => ({ key, value: json[key] }))
+      .map(({ key, value }) => {
+        return {
+          key: key.replace(/-(.)/, (_, c) => c.toUpperCase()),
+          value
+        };
+      });
     const purs = [
       'module ' + baseModuleNames.concat([moduleName]).join('.')
     ].concat(
