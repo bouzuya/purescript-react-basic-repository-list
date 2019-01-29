@@ -23,13 +23,15 @@ type Props =
   {}
 
 type State =
-  { page :: Int
+  { loading :: Boolean
+  , page :: Int
   , repos :: Array Repo
   }
 
 data Action
   = FetchFailure Error
   | FetchRepos
+  | FetchSuccess (Array Repo)
   | NextPage
   | PrevPage
   | UpdateRepos (Array Repo)
@@ -55,7 +57,7 @@ fetchRepos page = do
 
 fetchRepos' :: Int -> Aff Action
 fetchRepos' page =
-  map (either FetchFailure UpdateRepos) (Aff.try (fetchRepos page))
+  map (either FetchFailure FetchSuccess) (Aff.try (fetchRepos page))
 
 component :: Component Props
 component = createComponent "App"
@@ -68,7 +70,8 @@ didMount self = send self FetchRepos
 
 initialState :: State
 initialState =
-  { page: 1
+  { loading: true
+  , page: 1
   , repos: []
   }
 
@@ -134,6 +137,7 @@ render self =
       { className: "body"
       , children:
         [ renderPager self
+        , if self.state.loading then H.div_ [ H.text "loading" ] else H.div_ []
         , H.div
           { className: Style.counter
           , children:
@@ -150,11 +154,15 @@ render self =
 
 update :: Self Props State Action -> Action -> StateUpdate Props State Action
 update self (FetchFailure _) =
-  Update self.state { repos = [] }
+  Update self.state { loading = false, repos = [] }
 update self FetchRepos =
   UpdateAndSideEffects
-    (self.state { repos = [] })
+    (self.state { loading = true, repos = [] })
     (\self' -> sendAsync self' (fetchRepos' self'.state.page))
+update self (FetchSuccess repos) =
+  UpdateAndSideEffects
+    self.state { loading = false }
+    (\self' -> send self' (UpdateRepos repos))
 update self NextPage =
   UpdateAndSideEffects
     (self.state { page = self.state.page + 1 })
