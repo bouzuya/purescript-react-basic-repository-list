@@ -123,13 +123,14 @@ renderPager self =
 
 renderTable :: Self Props State Action -> JSX
 renderTable self =
-  H.table_
-    (
-      [ H.tr_
-        [ H.th_ [ H.text "full_name" ]
-        , H.th_ [ H.text "language" ]
-        , H.th_ [ H.text "stars" ]
-        , H.th_ [ H.text "updated_at" ]
+  H.table
+  { className: Style.table
+  , children:
+    ( [ H.tr_
+        [ H.th { className: Style.th, children: [ H.text "full_name" ] }
+        , H.th { className: Style.th, children: [ H.text "language" ] }
+        , H.th { className: Style.th, children: [ H.text "stars" ] }
+        , H.th { className: Style.th, children: [ H.text "updated_at" ] }
         ]
       ] <>
       (self.state.repos <#> (\repo ->
@@ -152,6 +153,7 @@ renderTable self =
           ]
         }
       )))
+  }
 
 renderLoading :: Self Props State Action -> JSX
 renderLoading self =
@@ -182,7 +184,7 @@ renderOrder self =
 render :: Self Props State Action -> JSX
 render self =
   H.div
-  { className: "app"
+  { className: Style.app
   , children:
     [ H.div
       { className: "header"

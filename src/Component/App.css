@@ -3,6 +3,11 @@
   margin: 0;
 }
 
+.app {
+  margin: 0 auto;
+  width: 800px;
+}
+
 .title {
   margin: 0;
 }
@@ -77,4 +82,12 @@
 .is-loading {
   composes: loading;
   display: block;
+}
+
+.table {
+  border-collapse: collapse;
+}
+
+.th {
+  border-bottom: 1px solid #000000;
 }
