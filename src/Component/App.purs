@@ -4,6 +4,7 @@ module Component.App
 
 import Bouzuya.HTTP.Client as HttpClient
 import Bouzuya.HTTP.Method as Method
+import Component.AppStyle as Style
 import Data.Either (either)
 import Data.Maybe (fromMaybe, maybe)
 import Data.Nullable (Nullable, toMaybe)
@@ -91,6 +92,28 @@ renderRepoRow repo =
     ]
   }
 
+renderPager :: Self Props State Action -> JSX
+renderPager self =
+  H.div
+  { className: Style.pager
+  , children:
+    [ H.div
+      { children: [ H.text "<" ]
+      , className: Style.prev
+      , onClick: capture_ self PrevPage
+      }
+    , H.div
+      { children: [ H.text (show self.state.page) ]
+      , className: Style.pageNumber
+      }
+    , H.div
+      { children: [ H.text ">" ]
+      , className: Style.next
+      , onClick: capture_ self NextPage
+      }
+    ]
+  }
+
 render :: Self Props State Action -> JSX
 render self =
   H.div
@@ -106,10 +129,7 @@ render self =
     , H.div
       { className: "body"
       , children:
-        [ H.style_ [ H.text ".repo > * { padding: 8px; }" ]
-        , H.div { children: [ H.text "<" ], onClick: capture_ self PrevPage }
-        , H.div_ [ H.text (show self.state.page) ]
-        , H.div { children: [ H.text ">" ], onClick: capture_ self NextPage }
+        [ renderPager self
         , H.table_ (self.state.repos <#> (\repo -> renderRepoRow repo))
         ]
       }

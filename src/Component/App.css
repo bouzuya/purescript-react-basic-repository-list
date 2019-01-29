@@ -1,0 +1,48 @@
+.pager {
+  height: 48px;
+  line-height: 48px;
+  margin: 0 auto;
+  position: relative;
+  width: 320px;
+}
+
+.next,
+.prev {
+  background-color: #000000;
+  color: white;
+  font-weight: bold;
+  border: 0;
+  box-shadow: 4px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-size: 32px;
+  height: 48px;
+  line-height: 48px;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  width: 48px;
+}
+
+.next:hover,
+.prev:hover {
+  box-shadow: 4px 4px rgba(0, 0, 0, 0.3);
+}
+
+.next:active,
+.prev:active {
+  box-shadow: 0 0 rgba(0, 0, 0, 0.3);
+}
+
+.next {
+  right: 0;
+}
+
+.prev {
+  left: 0;
+}
+
+.page-number {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
