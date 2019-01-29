@@ -124,26 +124,34 @@ renderPager self =
 renderTable :: Self Props State Action -> JSX
 renderTable self =
   H.table_
-    (self.state.repos <#> (\repo ->
-      H.tr
-      { className: "repo"
-      , children:
-        [ H.td_
-          [ H.a
-            { href: "https://github.com/" <> repo.full_name <> "/"
-            , children:
-              [ H.text repo.full_name ]
-            }
-          ]
-        , H.td_
-          [ H.text (fromMaybe "" (toMaybe repo.language)) ]
-        , H.td_
-          [ H.text (show repo.stargazers_count) ]
-        , H.td_
-          [ H.text repo.updated_at ]
+    (
+      [ H.tr_
+        [ H.th_ [ H.text "full_name" ]
+        , H.th_ [ H.text "language" ]
+        , H.th_ [ H.text "stars" ]
+        , H.th_ [ H.text "updated_at" ]
         ]
-      }
-    ))
+      ] <>
+      (self.state.repos <#> (\repo ->
+        H.tr
+        { className: "repo"
+        , children:
+          [ H.td_
+            [ H.a
+              { href: "https://github.com/" <> repo.full_name <> "/"
+              , children:
+                [ H.text repo.full_name ]
+              }
+            ]
+          , H.td_
+            [ H.text (fromMaybe "" (toMaybe repo.language)) ]
+          , H.td_
+            [ H.text (show repo.stargazers_count) ]
+          , H.td_
+            [ H.text repo.updated_at ]
+          ]
+        }
+      )))
 
 renderLoading :: Self Props State Action -> JSX
 renderLoading self =
