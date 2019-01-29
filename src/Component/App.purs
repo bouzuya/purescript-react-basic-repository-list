@@ -8,16 +8,18 @@ import Component.AppStyle as Style
 import Data.Array as Array
 import Data.Either (either)
 import Data.Enum (enumFromTo)
-import Data.Maybe (fromMaybe, maybe)
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Nullable (Nullable, toMaybe)
 import Data.Options ((:=))
 import Data.RepoOrder (RepoOrder(..))
+import Data.RepoOrder as RepoOrder
 import Effect (Effect)
 import Effect.Aff (Aff, Error, error, throwError)
 import Effect.Aff as Aff
 import Prelude (Unit, bind, bottom, map, max, pure, show, top, (+), (-), (<#>), (<<<), (<>), (==))
-import React.Basic (Component, JSX, Self, StateUpdate(..), capture_, createComponent, make, send, sendAsync)
+import React.Basic (Component, JSX, Self, StateUpdate(..), capture, capture_, createComponent, make, send, sendAsync)
 import React.Basic.DOM as H
+import React.Basic.DOM.Events (targetValue)
 import Simple.JSON (E)
 import Simple.JSON as SimpleJSON
 
@@ -37,6 +39,7 @@ data Action
   | FetchSuccess (Array Repo)
   | NextPage
   | PrevPage
+  | SelectRepoOrder String
   | UpdateRepos (Array Repo)
 
 type Repo =
@@ -55,7 +58,12 @@ fetchRepos order page = do
         "&"
         [ "type=owner"
         , "sort=" <> show order
-        , "direction=desc"
+        , "direction=" <>
+            case order of
+              RepoOrder.Created -> "desc"
+              RepoOrder.Pushed -> "desc"
+              RepoOrder.FullName -> "asc"
+              RepoOrder.Updated -> "desc"
         , "per_page=100"
         , "page=" <> show page
         ]
@@ -146,15 +154,22 @@ renderLoading self =
 
 renderOrder :: Self Props State Action -> JSX
 renderOrder self =
-  H.select_
-  (
-    (enumFromTo bottom top :: Array RepoOrder) <#>
-        (\order ->
-          H.option
-            { selected: order == self.state.order
-            , children: [ H.text (show order) ]
-            })
-  )
+  H.select
+  { onChange:
+      capture
+        self
+        targetValue
+        (\v -> SelectRepoOrder (fromMaybe "" v))
+  , children:
+    (
+      (enumFromTo bottom top :: Array RepoOrder) <#>
+          (\order ->
+            H.option
+              { selected: order == self.state.order
+              , children: [ H.text (show order) ]
+              })
+    )
+  }
 
 render :: Self Props State Action -> JSX
 render self =
@@ -216,5 +231,12 @@ update self PrevPage =
   UpdateAndSideEffects
     (self.state { page = max 1 (self.state.page - 1) })
     (\self' -> send self' FetchRepos)
+update self (SelectRepoOrder orderString) =
+  case RepoOrder.fromString orderString of
+    Nothing -> NoUpdate
+    Just order ->
+      UpdateAndSideEffects
+        (self.state { order = order })
+        (\self' -> send self' FetchRepos)
 update self (UpdateRepos repos) =
   Update self.state { repos = repos }

@@ -1,5 +1,6 @@
 module Data.RepoOrder
   ( RepoOrder(..)
+  , fromString
   ) where
 
 import Data.Enum (class Enum)
@@ -35,3 +36,10 @@ instance showRepoOrder :: Show RepoOrder where
   show Updated = "updated"
   show Pushed = "pushed"
   show FullName = "full_name"
+
+fromString :: String -> Maybe RepoOrder
+fromString "created" = Just Created
+fromString "updated" = Just Updated
+fromString "pushed" = Just Pushed
+fromString "full_name" = Just FullName
+fromString _ = Nothing
