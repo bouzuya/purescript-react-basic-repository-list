@@ -136,16 +136,20 @@ render self =
     , H.div
       { className: "body"
       , children:
-        [ renderPager self
-        , if self.state.loading then H.div_ [ H.text "loading" ] else H.div_ []
-        , H.div
-          { className: Style.counter
-          , children:
-            [ H.text ((show (Array.length self.state.repos)) <> " repoitories")
+        ([ renderPager self ] <>
+          if self.state.loading
+          then
+            [ H.div_ [ H.text "loading" ] ]
+          else
+            [ H.div_ []
+            , H.div
+              { className: Style.counter
+              , children:
+                [ H.text ((show (Array.length self.state.repos)) <> " repoitories")
+                ]
+              }
+            , renderTable self
             ]
-          }
-        , renderTable self
-        ]
       }
     , H.div
       { className: "footer" }
