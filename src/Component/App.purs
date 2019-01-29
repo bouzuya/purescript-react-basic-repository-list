@@ -13,7 +13,7 @@ import Data.Options ((:=))
 import Effect (Effect)
 import Effect.Aff (Aff, Error, error, throwError)
 import Effect.Aff as Aff
-import Prelude (Unit, bind, map, max, pure, show, (+), (-), (<#>), (<<<), (<>))
+import Prelude (Unit, bind, map, max, mempty, pure, show, (+), (-), (<#>), (<<<), (<>))
 import React.Basic (Component, JSX, Self, StateUpdate(..), capture_, createComponent, make, send, sendAsync)
 import React.Basic.DOM as H
 import Simple.JSON (E)
@@ -121,6 +121,13 @@ renderTable self =
       }
     ))
 
+renderLoading :: Self Props State Action -> JSX
+renderLoading self =
+  H.div
+  { className: if self.state.loading then Style.isLoading else Style.loading
+  , children: if self.state.loading then [ H.text "loading" ] else []
+  }
+
 render :: Self Props State Action -> JSX
 render self =
   H.div
@@ -129,20 +136,20 @@ render self =
     [ H.div
       { className: "header"
       , children:
-        [ H.h1_
-          [ H.text "Repository List" ]
+        [ H.h1
+          { className: Style.title
+          , children: [ H.text "Repository List" ]
+          }
         ]
       }
     , H.div
       { className: "body"
       , children:
-        ([ renderPager self ] <>
+        ([ renderPager self ] <> (
           if self.state.loading
-          then
-            [ H.div_ [ H.text "loading" ] ]
+          then []
           else
-            [ H.div_ []
-            , H.div
+            [ H.div
               { className: Style.counter
               , children:
                 [ H.text ((show (Array.length self.state.repos)) <> " repoitories")
@@ -150,6 +157,9 @@ render self =
               }
             , renderTable self
             ]
+          ) <>
+        [ renderLoading self ]
+        )
       }
     , H.div
       { className: "footer" }

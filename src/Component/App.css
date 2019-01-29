@@ -1,3 +1,12 @@
+:global(html),
+:global(body) {
+  margin: 0;
+}
+
+.title {
+  margin: 0;
+}
+
 .pager {
   height: 48px;
   line-height: 48px;
@@ -50,4 +59,22 @@
 .counter {
   text-align: right;
   width: 800px;
+}
+
+.loading {
+  background-color: rgba(0, 0, 0, 0.7);
+  bottom: 0;
+  color: white;
+  display: none;
+  left: 0;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  top: 0;
+  z-index: 1;
+}
+
+.is-loading {
+  composes: loading;
+  display: block;
 }
