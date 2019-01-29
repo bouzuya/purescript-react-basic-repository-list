@@ -7,13 +7,15 @@ import Bouzuya.HTTP.Method as Method
 import Component.AppStyle as Style
 import Data.Array as Array
 import Data.Either (either)
+import Data.Enum (enumFromTo)
 import Data.Maybe (fromMaybe, maybe)
 import Data.Nullable (Nullable, toMaybe)
 import Data.Options ((:=))
+import Data.RepoOrder (RepoOrder(..))
 import Effect (Effect)
 import Effect.Aff (Aff, Error, error, throwError)
 import Effect.Aff as Aff
-import Prelude (Unit, bind, map, max, mempty, pure, show, (+), (-), (<#>), (<<<), (<>))
+import Prelude (Unit, bind, bottom, map, max, pure, show, top, (+), (-), (<#>), (<<<), (<>), (==))
 import React.Basic (Component, JSX, Self, StateUpdate(..), capture_, createComponent, make, send, sendAsync)
 import React.Basic.DOM as H
 import Simple.JSON (E)
@@ -24,6 +26,7 @@ type Props =
 
 type State =
   { loading :: Boolean
+  , order :: RepoOrder
   , page :: Int
   , repos :: Array Repo
   }
@@ -43,11 +46,23 @@ type Repo =
   , updated_at :: String
   }
 
-fetchRepos :: Int -> Aff (Array Repo)
-fetchRepos page = do
+fetchRepos :: RepoOrder -> Int -> Aff (Array Repo)
+fetchRepos order page = do
+  let
+    baseUrl = "https://api.github.com/users/bouzuya/repos"
+    query =
+      Array.intercalate
+        "&"
+        [ "type=owner"
+        , "sort=" <> show order
+        , "direction=desc"
+        , "per_page=100"
+        , "page=" <> show page
+        ]
+    url = baseUrl <> "?" <> query
   { body } <- HttpClient.fetch
     ( HttpClient.method := Method.GET
-    <> HttpClient.url := ("https://api.github.com/users/bouzuya/repos?type=owner&sort=pushed&direction=desc&per_page=100&page=" <> show page)
+    <> HttpClient.url := url
     )
   b <- maybe (throwError (error "body is nothing")) pure body
   either
@@ -55,9 +70,9 @@ fetchRepos page = do
     pure
     (SimpleJSON.readJSON b :: E (Array Repo))
 
-fetchRepos' :: Int -> Aff Action
-fetchRepos' page =
-  map (either FetchFailure FetchSuccess) (Aff.try (fetchRepos page))
+fetchRepos' :: RepoOrder -> Int -> Aff Action
+fetchRepos' order page =
+  map (either FetchFailure FetchSuccess) (Aff.try (fetchRepos order page))
 
 component :: Component Props
 component = createComponent "App"
@@ -71,6 +86,7 @@ didMount self = send self FetchRepos
 initialState :: State
 initialState =
   { loading: true
+  , order: Pushed
   , page: 1
   , repos: []
   }
@@ -128,6 +144,18 @@ renderLoading self =
   , children: if self.state.loading then [ H.text "loading" ] else []
   }
 
+renderOrder :: Self Props State Action -> JSX
+renderOrder self =
+  H.select_
+  (
+    (enumFromTo bottom top :: Array RepoOrder) <#>
+        (\order ->
+          H.option
+            { selected: order == self.state.order
+            , children: [ H.text (show order) ]
+            })
+  )
+
 render :: Self Props State Action -> JSX
 render self =
   H.div
@@ -145,7 +173,10 @@ render self =
     , H.div
       { className: "body"
       , children:
-        ([ renderPager self ] <> (
+        (
+          [ renderPager self
+          , renderOrder self
+          ] <> (
           if self.state.loading
           then []
           else
@@ -172,7 +203,7 @@ update self (FetchFailure _) =
 update self FetchRepos =
   UpdateAndSideEffects
     (self.state { loading = true, repos = [] })
-    (\self' -> sendAsync self' (fetchRepos' self'.state.page))
+    (\self' -> sendAsync self' (fetchRepos' self'.state.order self'.state.page))
 update self (FetchSuccess repos) =
   UpdateAndSideEffects
     self.state { loading = false }
